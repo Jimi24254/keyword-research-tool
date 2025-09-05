@@ -1,14 +1,17 @@
 {
-  "name": "keyword-planner-backend",
+  "name": "keyword-tool",
   "version": "1.0.0",
-  "description": "Backend server for keyword research tool",
-  "main": "server.js",
+  "description": "A keyword research tool using Google Ads API",
+  "main": "api/server.js",
+  "type": "module",
   "scripts": {
-    "start": "node server.js"
+    "start": "node api/server.js"
   },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
   "dependencies": {
-    "cors": "^2.8.5",
-    "express": "^4.18.2",
     "google-ads-api": "^21.0.1"
   }
 }
+
