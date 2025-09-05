@@ -1,6 +1,6 @@
-const { GoogleAdsApi, enums } = require('google-ads-api');
+import { GoogleAdsApi, enums } from 'google-ads-api';
 
-// This is a Vercel serverless function
+// This is a Vercel serverless function, correctly using ES Module syntax
 export default async function handler(req, res) {
     // Read configuration from Vercel Environment Variables
     const config = {
@@ -47,11 +47,16 @@ export default async function handler(req, res) {
         res.status(200).json(formattedResults);
 
     } catch (error) {
+        // Log the full error to Vercel for debugging
         console.error('Full API Error:', JSON.stringify(error, null, 2));
-        const errorDetails = error.errors ? error.errors[0].message : "An unknown error occurred";
+        
+        // Extract a user-friendly error message
+        const errorDetails = error.errors && error.errors[0] ? error.errors[0].message : "An unknown server error occurred";
+        
         res.status(500).json({ 
             error: 'Failed to fetch data from Google Ads API', 
             details: errorDetails 
         });
     }
 }
+
