@@ -1,9 +1,9 @@
 // api/keywords.js
-// --- FINAL PRODUCTION VERSION ---
+// --- FINAL PRODUCTION VERSION WITH DEBUGGING ---
 // This version securely reads credentials from Vercel's Environment Variables
 // and makes a direct API call to Google Ads.
+// Added temporary debugging to log raw response text.
 
-// Helper function to get a fresh Access Token from Google
 async function getAccessToken() {
     // Securely read credentials from environment variables
     const clientId = process.env.GOOGLE_CLIENT_ID;
@@ -74,14 +74,19 @@ export default async function handler(req, res) {
             body: JSON.stringify(apiRequestBody),
         });
 
-        const responseData = await apiResponse.json();
+        // --- DEBUGGING ADDED HERE ---
+        const responseText = await apiResponse.text(); // Get raw text response
+        console.log('Raw API Response:', responseText); // Log the full raw response for debugging
 
         if (!apiResponse.ok) {
-            console.error('Google Ads API Error:', responseData);
-            const errorDetails = responseData.error?.details?.[0]?.errors?.[0]?.message || 'Failed to fetch data from Google Ads API';
-            throw new Error(errorDetails);
+            console.error('API Response Status:', apiResponse.status); // Log status code
+            console.error('API Response Text:', responseText); // Log raw text if not OK
+            throw new Error(`API error: ${apiResponse.status} - ${responseText.substring(0, 200)}`); // Throw with truncated text
         }
-        
+
+        // Parse the text as JSON (this may fail if not valid JSON)
+        const responseData = JSON.parse(responseText);
+
         const formattedResults = (responseData.results || []).map(result => ({
             text: result.text,
             avg_monthly_searches: result.keywordIdeaMetrics.avgMonthlySearches,
@@ -98,4 +103,3 @@ export default async function handler(req, res) {
         });
     }
 }
-
