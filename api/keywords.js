@@ -1,5 +1,5 @@
-// api/server.js
-// --- FINAL DEBUGGING STEP ---
+// api/keywords.js
+// --- FINAL DEBUGGING STEP (RENAMED) ---
 // This version bypasses the actual `fetch` calls to confirm if the rest of the code can execute.
 
 async function getAccessToken_mock() {
@@ -45,4 +45,3 @@ export default async function handler(req, res) {
         });
     }
 }
-

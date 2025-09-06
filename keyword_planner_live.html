@@ -3,134 +3,155 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ابزار تحقیق کلمات کلیدی</title>
+    <title>ابزار تحقیق کلمات کلیدی (داده واقعی)</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Vazirmatn', sans-serif;
+            background-color: #f0f2f5;
         }
         .loader {
-            border-top-color: #3498db;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
             animation: spin 1s linear infinite;
         }
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
-<body class="bg-gray-100">
+<body class="flex items-center justify-center min-h-screen">
+    <div class="w-full max-w-4xl mx-auto p-4 sm:p-6 md:p-8">
+        <div class="bg-white shadow-lg rounded-2xl overflow-hidden">
+            <div class="p-6 md:p-8">
+                <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 text-center mb-2">ابزار تحقیق کلمات کلیدی</h1>
+                <p class="text-gray-500 text-center mb-6">کلمه کلیدی خود را برای دریافت داده‌های واقعی وارد کنید.</p>
 
-    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
-        <div class="bg-white rounded-lg shadow-lg p-6 md:p-8">
-            <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2">ابزار تحقیق کلمات کلیدی</h1>
-            <p class="text-gray-600 mb-6">کلمه کلیدی خود را برای دریافت داده‌های واقعی وارد کنید.</p>
-
-            <div class="flex flex-col sm:flex-row gap-3 mb-6">
-                <input type="text" id="keyword-input" placeholder="مثلا: طراحی سایت فروشگاهی" class="flex-grow w-full px-4 py-2 text-gray-700 bg-gray-50 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
-                <button id="search-btn" class="w-full sm:w-auto bg-blue-600 text-white font-bold py-2 px-6 rounded-md hover:bg-blue-700 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
-                    جستجو
-                </button>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <input type="text" id="keywordInput" class="flex-grow p-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition" placeholder="مثلا: طراحی سایت فروشگاهی">
+                    <button id="searchButton" class="bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors duration-300 flex items-center justify-center">
+                        <span id="buttonText">جستجو</span>
+                        <div id="loader" class="loader hidden"></div>
+                    </button>
+                </div>
             </div>
 
-            <div id="results-container" class="mt-8">
-                <!-- نتایج در اینجا نمایش داده می‌شوند -->
+            <div id="resultsContainer" class="p-6 md:p-8 bg-gray-50 min-h-[200px]">
+                <!-- Results will be displayed here -->
             </div>
         </div>
+        <footer class="text-center text-gray-500 mt-6 text-sm">
+            طراحی شده با ❤️
+        </footer>
     </div>
 
     <script>
-        const searchBtn = document.getElementById('search-btn');
-        const keywordInput = document.getElementById('keyword-input');
-        const resultsContainer = document.getElementById('results-container');
+        const keywordInput = document.getElementById('keywordInput');
+        const searchButton = document.getElementById('searchButton');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const buttonText = document.getElementById('buttonText');
+        const loader = document.getElementById('loader');
 
-        // --- CORE FUNCTION ---
+        searchButton.addEventListener('click', performSearch);
+        keywordInput.addEventListener('keyup', (event) => {
+            if (event.key === 'Enter') {
+                performSearch();
+            }
+        });
+
         async function performSearch() {
             const keyword = keywordInput.value.trim();
             if (!keyword) {
-                resultsContainer.innerHTML = `<p class="text-red-500">لطفا یک کلمه کلیدی وارد کنید.</p>`;
+                resultsContainer.innerHTML = `<div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded" role="alert"><p>لطفا یک کلمه کلیدی وارد کنید.</p></div>`;
                 return;
             }
 
-            resultsContainer.innerHTML = `
-                <div class="flex justify-center items-center py-8">
-                    <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
-                    <p class="ml-4 text-gray-600">در حال دریافت اطلاعات...</p>
-                </div>`;
+            buttonText.classList.add('hidden');
+            loader.classList.remove('hidden');
+            searchButton.disabled = true;
+            resultsContainer.innerHTML = '';
 
             try {
                 // --- FIX APPLIED HERE ---
-                // 1. Changed endpoint to /get-keywords
-                // 2. Using GET method (default for fetch) and passing keyword as a URL parameter
-                const response = await fetch(`/get-keywords?keyword=${encodeURIComponent(keyword)}`);
+                // The endpoint is now /api/keywords to avoid filename conflicts on Vercel
+                const response = await fetch(`/api/keywords?keyword=${encodeURIComponent(keyword)}`);
 
                 if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({ details: 'پاسخ سرور معتبر نبود.' }));
-                    throw new Error(errorData.details || `خطای سرور: ${response.statusText}`);
+                    const errorText = await response.text();
+                    try {
+                        // Try to parse as JSON first, as our server might send a JSON error
+                        const errorData = JSON.parse(errorText);
+                        throw new Error(errorData.details || `خطای سرور: ${response.statusText}`);
+                    } catch (e) {
+                         // If it's not JSON (e.g., an HTML error page from Vercel), show the raw text
+                         throw new Error(`خطا! ${errorText.substring(0, 100)}`); // Show first 100 chars
+                    }
                 }
-
+                
                 const data = await response.json();
                 displayResults(data);
 
             } catch (error) {
                 console.error('Fetch error:', error);
-                resultsContainer.innerHTML = `<div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded" role="alert"><p class="font-bold">خطا!</p><p>${error.message}</p></div>`;
+                 resultsContainer.innerHTML = `<div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded" role="alert"><p class="font-bold">خطا!</p><p>${error.message}</p></div>`;
+            } finally {
+                buttonText.classList.remove('hidden');
+                loader.classList.add('hidden');
+                searchButton.disabled = false;
             }
         }
 
         function displayResults(data) {
-            if (!data || data.length === 0) {
-                resultsContainer.innerHTML = '<p class="text-center text-gray-500">هیچ نتیجه‌ای برای این کلمه کلیدی یافت نشد.</p>';
+            if (data.length === 0) {
+                resultsContainer.innerHTML = `<div class="text-center text-gray-500"><p>هیچ نتیجه‌ای برای این کلمه کلیدی یافت نشد.</p></div>`;
                 return;
             }
-
-            const competitionColors = {
-                'LOW': 'bg-green-100 text-green-800',
-                'MEDIUM': 'bg-yellow-100 text-yellow-800',
-                'HIGH': 'bg-red-100 text-red-800',
-                'UNKNOWN': 'bg-gray-100 text-gray-800'
-            };
-
-            const resultsHTML = `
+            
+            let html = `
                 <h2 class="text-xl font-bold text-gray-700 mb-4">نتایج یافت شده:</h2>
                 <div class="overflow-x-auto">
-                    <table class="min-w-full bg-white border border-gray-200 rounded-lg">
-                        <thead class="bg-gray-50">
+                    <table class="min-w-full bg-white rounded-lg shadow">
+                        <thead class="bg-gray-200">
                             <tr>
-                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">کلمه کلیدی</th>
-                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">میانگین جستجوی ماهانه</th>
-                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">رقابت</th>
+                                <th class="text-right p-3 font-semibold text-sm text-gray-600">کلمه کلیدی</th>
+                                <th class="text-right p-3 font-semibold text-sm text-gray-600">میانگین جستجوی ماهانه</th>
+                                <th class="text-right p-3 font-semibold text-sm text-gray-600">سطح رقابت</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-200">
-                            ${data.map(item => `
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${item.text}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${item.avg_monthly_searches ? item.avg_monthly_searches.toLocaleString('fa-IR') : 'N/A'}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                        <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${competitionColors[item.competition] || competitionColors['UNKNOWN']}">
-                                            ${item.competition || 'نامشخص'}
-                                        </span>
-                                    </td>
-                                </tr>
-                            `).join('')}
+                        <tbody>
+            `;
+            data.forEach((item, index) => {
+                html += `
+                    <tr class="border-b ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}">
+                        <td class="p-3 text-gray-800">${item.text}</td>
+                        <td class="p-3 text-gray-600">${item.avg_monthly_searches ? new Intl.NumberFormat('fa-IR').format(item.avg_monthly_searches) : 'N/A'}</td>
+                        <td class="p-3 text-gray-600">${translateCompetition(item.competition)}</td>
+                    </tr>
+                `;
+            });
+            html += `
                         </tbody>
                     </table>
                 </div>
             `;
-            resultsContainer.innerHTML = resultsHTML;
+            resultsContainer.innerHTML = html;
         }
 
-        searchBtn.addEventListener('click', performSearch);
-        keywordInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                performSearch();
+        function translateCompetition(level) {
+            if (!level) return 'نامشخص';
+            switch (level) {
+                case 'LOW': return '<span class="text-green-600 font-semibold">کم</span>';
+                case 'MEDIUM': return '<span class="text-yellow-600 font-semibold">متوسط</span>';
+                case 'HIGH': return '<span class="text-red-600 font-semibold">زیاد</span>';
+                default: return 'نامشخص';
             }
-        });
+        }
     </script>
-
 </body>
 </html>
 
