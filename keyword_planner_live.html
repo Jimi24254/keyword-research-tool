@@ -1,15 +1,14 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Keyword Research Tool</title>
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <title>ابزار تحقیق کلمات کلیدی</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Vazirmatn', sans-serif;
             background-color: #f0f2f5;
         }
         .loader {
@@ -27,70 +26,37 @@
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen">
-    <div id="appContainer" class="w-full max-w-4xl mx-auto p-4 sm:p-6 md:p-8">
-        <!-- Login View -->
-        <div id="loginView" class="text-center bg-white p-8 rounded-2xl shadow-lg">
-            <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-4">Welcome to the Keyword Research Tool</h1>
-            <p class="text-gray-500 mb-8">To continue, please sign in with your Google account.</p>
-            <div id="g_id_onload"
-                 data-client_id="791001048812-evf1g5cv3q1s2q2djdn8rvdg3bpc1b4u.apps.googleusercontent.com"
-                 data-callback="handleCredentialResponse">
-            </div>
-            <div class="g_id_signin"
-                 data-type="standard"
-                 data-size="large"
-                 data-theme="outline"
-                 data-text="sign_in_with"
-                 data-shape="rectangular"
-                 data-logo_alignment="left">
-            </div>
-        </div>
+    <div class="w-full max-w-4xl mx-auto p-4 sm:p-6 md:p-8">
+        <div class="bg-white shadow-lg rounded-2xl overflow-hidden">
+            <div class="p-6 md:p-8">
+                <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 text-center mb-2">ابزار تحقیق کلمات کلیدی</h1>
+                <p class="text-gray-500 text-center mb-6">کلمه کلیدی خود را برای دریافت داده‌های واقعی وارد کنید.</p>
 
-        <!-- Main Tool View (Initially Hidden) -->
-        <div id="toolView" class="hidden">
-             <div class="bg-white shadow-lg rounded-2xl overflow-hidden">
-                <div class="p-6 md:p-8">
-                    <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 text-center mb-2">Keyword Research Tool</h1>
-                    <p class="text-gray-500 text-center mb-6">Enter your keyword to get live data.</p>
-
-                    <div class="flex flex-col sm:flex-row gap-3">
-                        <input type="text" id="keywordInput" class="flex-grow p-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition" placeholder="e.g., online store design">
-                        <button id="searchButton" class="bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors duration-300 flex items-center justify-center">
-                            <span id="buttonText">Search</span>
-                            <div id="loader" class="loader hidden"></div>
-                        </button>
-                    </div>
-                </div>
-
-                <div id="resultsContainer" class="p-6 md:p-8 bg-gray-50 min-h-[200px]">
-                    <!-- Results will be displayed here -->
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <input type="text" id="keywordInput" class="flex-grow p-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition" placeholder="مثلا: طراحی سایت فروشگاهی">
+                    <button id="searchButton" class="bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors duration-300 flex items-center justify-center">
+                        <span id="buttonText">جستجو</span>
+                        <div id="loader" class="loader hidden"></div>
+                    </button>
                 </div>
             </div>
-        </div>
 
+            <div id="resultsContainer" class="p-6 md:p-8 bg-gray-50 min-h-[200px]">
+                <!-- Results will be displayed here -->
+            </div>
+        </div>
         <footer class="text-center text-gray-500 mt-6 text-sm">
-            Designed with ❤️
+            طراحی شده با ❤️
         </footer>
     </div>
 
     <script>
-        // --- DOM Elements ---
-        const loginView = document.getElementById('loginView');
-        const toolView = document.getElementById('toolView');
         const keywordInput = document.getElementById('keywordInput');
         const searchButton = document.getElementById('searchButton');
         const resultsContainer = document.getElementById('resultsContainer');
         const buttonText = document.getElementById('buttonText');
         const loader = document.getElementById('loader');
 
-        // --- Google Sign-In Callback ---
-        function handleCredentialResponse(response) {
-            console.log("Logged in successfully. JWT ID token:", response.credential);
-            loginView.classList.add('hidden');
-            toolView.classList.remove('hidden');
-        }
-
-        // --- Event Listeners ---
         searchButton.addEventListener('click', performSearch);
         keywordInput.addEventListener('keyup', (event) => {
             if (event.key === 'Enter') {
@@ -98,11 +64,10 @@
             }
         });
 
-        // --- Core Search Function ---
         async function performSearch() {
             const keyword = keywordInput.value.trim();
             if (!keyword) {
-                resultsContainer.innerHTML = `<div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded" role="alert"><p>Please enter a keyword.</p></div>`;
+                resultsContainer.innerHTML = `<div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded" role="alert"><p>لطفا یک کلمه کلیدی وارد کنید.</p></div>`;
                 return;
             }
 
@@ -116,11 +81,11 @@
 
                 if (!response.ok) {
                     const errorText = await response.text();
-                     try {
+                    try {
                         const errorData = JSON.parse(errorText);
-                        throw new Error(errorData.details || `Server Error: ${response.statusText}`);
+                        throw new Error(errorData.details || `خطای سرور: ${response.statusText}`);
                     } catch (e) {
-                         throw new Error(`Error! ${errorText}`);
+                         throw new Error(`خطا! ${errorText}`);
                     }
                 }
                 
@@ -129,7 +94,7 @@
 
             } catch (error) {
                 console.error('Fetch error:', error);
-                 resultsContainer.innerHTML = `<div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded" role="alert"><p class="font-bold">Error!</p><p>${error.message}</p></div>`;
+                 resultsContainer.innerHTML = `<div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded" role="alert"><p class="font-bold">خطا!</p><p>${error.message}</p></div>`;
             } finally {
                 buttonText.classList.remove('hidden');
                 loader.classList.add('hidden');
@@ -139,19 +104,19 @@
 
         function displayResults(data) {
             if (data.length === 0) {
-                resultsContainer.innerHTML = `<div class="text-center text-gray-500"><p>No results found for this keyword.</p></div>`;
+                resultsContainer.innerHTML = `<div class="text-center text-gray-500"><p>هیچ نتیجه‌ای برای این کلمه کلیدی یافت نشد.</p></div>`;
                 return;
             }
             
             let html = `
-                <h2 class="text-xl font-bold text-gray-700 mb-4">Results Found:</h2>
+                <h2 class="text-xl font-bold text-gray-700 mb-4">نتایج یافت شده:</h2>
                 <div class="overflow-x-auto">
                     <table class="min-w-full bg-white rounded-lg shadow">
                         <thead class="bg-gray-200">
                             <tr>
-                                <th class="text-left p-3 font-semibold text-sm text-gray-600">Keyword</th>
-                                <th class="text-left p-3 font-semibold text-sm text-gray-600">Avg. Monthly Searches</th>
-                                <th class="text-left p-3 font-semibold text-sm text-gray-600">Competition</th>
+                                <th class="text-right p-3 font-semibold text-sm text-gray-600">کلمه کلیدی</th>
+                                <th class="text-right p-3 font-semibold text-sm text-gray-600">میانگین جستجوی ماهانه</th>
+                                <th class="text-right p-3 font-semibold text-sm text-gray-600">سطح رقابت</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -160,7 +125,7 @@
                 html += `
                     <tr class="border-b ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}">
                         <td class="p-3 text-gray-800">${item.text}</td>
-                        <td class="p-3 text-gray-600">${item.avg_monthly_searches ? new Intl.NumberFormat('en-US').format(item.avg_monthly_searches) : 'N/A'}</td>
+                        <td class="p-3 text-gray-600">${item.avg_monthly_searches ? new Intl.NumberFormat('fa-IR').format(item.avg_monthly_searches) : 'N/A'}</td>
                         <td class="p-3 text-gray-600">${translateCompetition(item.competition)}</td>
                     </tr>
                 `;
@@ -174,12 +139,12 @@
         }
 
         function translateCompetition(level) {
-            if (!level) return 'Unknown';
+            if (!level) return 'نامشخص';
             switch (level) {
-                case 'LOW': return '<span class="text-green-600 font-semibold">Low</span>';
-                case 'MEDIUM': return '<span class="text-yellow-600 font-semibold">Medium</span>';
-                case 'HIGH': return '<span class="text-red-600 font-semibold">High</span>';
-                default: return 'Unknown';
+                case 'LOW': return '<span class="text-green-600 font-semibold">کم</span>';
+                case 'MEDIUM': return '<span class="text-yellow-600 font-semibold">متوسط</span>';
+                case 'HIGH': return '<span class="text-red-600 font-semibold">زیاد</span>';
+                default: return 'نامشخص';
             }
         }
     </script>
